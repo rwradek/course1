@@ -68,6 +68,22 @@ PNG grayscale(PNG image) {
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
 
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      int x_dist = std::abs(centerX - (int)x);
+      int y_dist = std::abs(centerY - (int)y);
+      int pixel_dist = std::sqrt(x_dist*x_dist + y_dist*y_dist);
+
+      if (pixel_dist > 160) {
+        pixel.l = pixel.l * 0.2;
+      } else { 
+        pixel.l = pixel.l * (1 - pixel_dist * 0.005);
+      }
+    }
+  }
+
   return image;
   
 }
@@ -121,6 +137,20 @@ for (unsigned x = 0; x < image.width(); x++) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+
+for (unsigned x = 0; x < firstImage.width(); x++) {
+    for (unsigned y = 0; y < firstImage.height(); y++) {
+      HSLAPixel & pixel   = firstImage.getPixel(x, y);
+      HSLAPixel & stencil = secondImage.getPixel(x, y);
+
+      double new_l = 0;
+      if (stencil.l == 1.0) {
+        new_l = pixel.l + 0.2; 
+        pixel.l = new_l > 1.0 ? 1.0 : new_l;
+      } 
+
+    }
+  }
 
   return firstImage;
 }
